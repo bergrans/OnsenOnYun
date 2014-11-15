@@ -9,7 +9,7 @@
 
 // Program settings
 #define SAMPLE_INTERVAL         15000
-#define CURRENT_CAL             27.6
+#define CURRENT_CAL             28.95
 #define NMBR_OF_MEASUREMENTS    1480
 #define MAINS_VOLTAGE           230
 #define MIN_POWER_LEVEL         50.0
@@ -33,7 +33,7 @@ int day;
 int lastDay = -1;
 bool sendLastDayResult = false;
 
-float actualReadings[8];
+float actualReadings[9];
 
 #define chan_boiler_temp_bottom 0
 #define chan_outlet_temp        1
@@ -43,10 +43,13 @@ float actualReadings[8];
 #define chan_boiler_temp_delta  5
 #define chan_heater_power       6
 #define chan_heater_power_cum   7
+#define chan_boiler_energy_cum  8
 
 unsigned long lastSample = 0;      // when your last send a sample
 
 float lowest_inlet = 99.9;
+float lastBoilerTemp = 0.0;
+
 
 String dataString;
 //static char channel_data[7];  // Channel data string buffer 
@@ -91,6 +94,7 @@ void loop()
         
     if(lastDay != day) {
       actualReadings[chan_heater_power_cum] = 0; // reset cumulative power on a new day
+      actualReadings[chan_boiler_energy_cum] = 0;
       sendLastDayResult = true;
     }
     

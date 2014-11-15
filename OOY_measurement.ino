@@ -9,6 +9,12 @@ void updateData() {
     lowest_inlet = actualReadings[chan_inlet_temp];
   }
 
+  float boilerTemp = (actualReadings[chan_boiler_temp_top] + actualReadings[chan_boiler_temp_bottom]) / 2;
+ 
+  if (lastBoilerTemp != 0.0) {
+    actualReadings[chan_boiler_energy_cum] += (boilerTemp - lastBoilerTemp) * (boilerTemp - actualReadings[chan_shell_temp]);
+  }
+
   actualReadings[chan_heater_power_cum] += actualReadings[chan_heater_power]/240000;
 
   if (1) {
@@ -46,6 +52,16 @@ void updateData() {
     dataString += "\nheater_power_cum,";
     dataString += channel_data;
     
+    dtostrf(actualReadings[chan_boiler_energy_cum], 5, 2, channel_data);
+    dataString += "\nboiler_energy_cum,";
+    dataString += channel_data;
+    
+    //if (lastBoilerTemp != 0.0) {
+      //dtostrf(energy, 3, 1, channel_data);
+      //dataString += "\nboiler_energy,";
+      //dataString += channel_data;
+    //}
+    
     if (sendLastDayResult) {
       dtostrf(lowest_inlet, 4, 2, channel_data);
       dataString += "\nwater_temp,";
@@ -55,6 +71,7 @@ void updateData() {
       sendLastDayResult = false;
     }
   }
+  lastBoilerTemp = boilerTemp;
 }
 
 /**
