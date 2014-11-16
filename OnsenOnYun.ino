@@ -95,10 +95,11 @@ void loop()
     lastSample = millis();
         
     if(lastDay != day) {
-      actualReadings[chan_heater_power_cum] = 0; // reset cumulative power on a new day
-      actualReadings[chan_boiler_energy_in] = 0;
-      actualReadings[chan_boiler_energy_out] = 0;
+      actualReadings[chan_heater_power_cum] = (float)0; // reset cumulative power on a new day
+      actualReadings[chan_boiler_energy_in] = (float)0;
+      actualReadings[chan_boiler_energy_out] = (float)0;
       sendLastDayResult = true;
+		Console.println("A new day is here!");
     }
     
     if (!date.running())  {

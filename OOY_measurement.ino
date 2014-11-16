@@ -13,8 +13,8 @@ void updateData() {
  
   if (lastBoilerTemp != 0.0) {
     float energy = 25.2 * (boilerTemp - lastBoilerTemp) * (1 + (boilerTemp - actualReadings[chan_shell_temp]) / ISO_VALUE);
-    Console.println(energy);
-    if (energy >= 0.0) {
+    //Console.println(energy);
+    if (energy >= 0.0 && actualReadings[chan_heater_power] > 0) {
       actualReadings[chan_boiler_energy_in] += energy;
     } else {
       actualReadings[chan_boiler_energy_out] += energy;
