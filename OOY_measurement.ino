@@ -10,7 +10,7 @@ void updateData() {
   }
 
   float boilerTemp = (actualReadings[chan_boiler_temp_top] + actualReadings[chan_boiler_temp_bottom]) / 2;
- 
+
   if (lastBoilerTemp != 0.0) {
     float energy = 25.2 * (boilerTemp - lastBoilerTemp) * (1 + (boilerTemp - actualReadings[chan_shell_temp]) / ISO_VALUE);
     //Console.println(energy);
@@ -21,59 +21,57 @@ void updateData() {
     }
   }
 
-  actualReadings[chan_heater_power_cum] += actualReadings[chan_heater_power]/240000;
+  actualReadings[chan_heater_power_cum] += actualReadings[chan_heater_power] / 240000;
 
-  if (1) {
-    char channel_data[7];
-    
-    dtostrf(actualReadings[chan_boiler_temp_top], 4, 2, channel_data);
-    dataString = "boiler_temp_top,";   
-    dataString += channel_data;
+  char channel_data[7];
 
-    dtostrf(actualReadings[chan_boiler_temp_bottom], 4, 2, channel_data);
-    dataString += "\nboiler_temp_bottom,";   
-    dataString += channel_data;
+  dtostrf(actualReadings[chan_boiler_temp_top], 4, 2, channel_data);
+  dataString = "boiler_temp_top,";
+  dataString += channel_data;
 
-    dtostrf(actualReadings[chan_boiler_temp_top]-actualReadings[chan_boiler_temp_bottom], 5, 2, channel_data);
-    dataString += "\nboiler_temp_delta,";   
-    dataString += channel_data;
-  
-    dtostrf(actualReadings[chan_inlet_temp], 4, 2, channel_data);
-    dataString += "\ninlet_temp,";
-    dataString += channel_data;
+  dtostrf(actualReadings[chan_boiler_temp_bottom], 4, 2, channel_data);
+  dataString += "\nboiler_temp_bottom,";
+  dataString += channel_data;
 
-    dtostrf(actualReadings[chan_outlet_temp], 4, 2, channel_data);
-    dataString += "\noutlet_temp,";
-    dataString += channel_data;
+  dtostrf(actualReadings[chan_boiler_temp_top] - actualReadings[chan_boiler_temp_bottom], 5, 2, channel_data);
+  dataString += "\nboiler_temp_delta,";
+  dataString += channel_data;
 
-    dtostrf(actualReadings[chan_shell_temp], 4, 2, channel_data);
-    dataString += "\nshell_temp,";
+  dtostrf(actualReadings[chan_inlet_temp], 4, 2, channel_data);
+  dataString += "\ninlet_temp,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_outlet_temp], 4, 2, channel_data);
+  dataString += "\noutlet_temp,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_shell_temp], 4, 2, channel_data);
+  dataString += "\nshell_temp,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_heater_power], 1, 0, channel_data);
+  dataString += "\nheater_power,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_heater_power_cum], 4, 2, channel_data);
+  dataString += "\nheater_power_cum,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_boiler_energy_in], 5, 2, channel_data);
+  dataString += "\nboiler_energy_in,";
+  dataString += channel_data;
+
+  dtostrf(actualReadings[chan_boiler_energy_out], 5, 2, channel_data);
+  dataString += "\nboiler_energy_out,";
+  dataString += channel_data;
+
+  if (sendLastDayResult) {
+    dtostrf(lowest_inlet, 4, 2, channel_data);
+    dataString += "\nwater_temp,";
     dataString += channel_data;
-    
-    dtostrf(actualReadings[chan_heater_power], 1, 0, channel_data);
-    dataString += "\nheater_power,";
-    dataString += channel_data;
-    
-    dtostrf(actualReadings[chan_heater_power_cum], 4, 2, channel_data);
-    dataString += "\nheater_power_cum,";
-    dataString += channel_data;
-    
-    dtostrf(actualReadings[chan_boiler_energy_in], 5, 2, channel_data);
-    dataString += "\nboiler_energy_in,";
-    dataString += channel_data;
-    
-    dtostrf(actualReadings[chan_boiler_energy_out], 5, 2, channel_data);
-    dataString += "\nboiler_energy_out,";
-    dataString += channel_data;
-     
-    if (sendLastDayResult) {
-      dtostrf(lowest_inlet, 4, 2, channel_data);
-      dataString += "\nwater_temp,";
-      dataString += channel_data;
-      lowest_inlet = 99.9;
-      
-      sendLastDayResult = false;
-    }
+    lowest_inlet = 99.9;
+
+    sendLastDayResult = false;
   }
   lastBoilerTemp = boilerTemp;
 }
@@ -83,7 +81,7 @@ void updateData() {
  */
 double measurePower() {
   double power = emon.calcIrms(NMBR_OF_MEASUREMENTS) * MAINS_VOLTAGE;
-  if ( power > MIN_POWER_LEVEL) {
+  if (power > MIN_POWER_LEVEL) {
     return power;
   } else {
     return 0.0;
@@ -104,30 +102,30 @@ void getAllTemperatureValues(float *values) {
   byte data[12];
   byte addr[8];
 
-  while ( ds.search(addr)) {
+  while (ds.search(addr)) {
 
-    if ( OneWire::crc8( addr, 7) != addr[7]) {
+    if (OneWire::crc8(addr, 7) != addr[7]) {
       //CRC is not valid!
       return;
     }
 
-    if ( addr[0] == 0x28) {
+    if (addr[0] == 0x28) {
       //device is a DS18B20 family device
       ds.reset();
       ds.select(addr);
-      ds.write(0x44);         // start conversion
+      ds.write(0x44); // start conversion
       present = ds.reset();
-      ds.select(addr);    
-      ds.write(0xBE);         // Read Scratchpad
+      ds.select(addr);
+      ds.write(0xBE); // Read Scratchpad
 
-      for ( i = 0; i < 9; i++) {           // we need 9 bytes
+      for (i = 0; i < 9; i++) { // we need 9 bytes
         data[i] = ds.read();
       }
 
       LowByte = data[0];
       HighByte = data[1];
       TReading = (HighByte << 8) + LowByte;
-      SignBit = TReading & 0x8000;  // test most sig bit
+      SignBit = TReading & 0x8000; // test most sig bit
 
       if (SignBit) // negative
       {
