@@ -12,7 +12,13 @@ void updateData() {
   float boilerTemp = (actualReadings[chan_boiler_temp_top] + actualReadings[chan_boiler_temp_bottom]) / 2;
  
   if (lastBoilerTemp != 0.0) {
-    actualReadings[chan_boiler_energy_cum] += (boilerTemp - lastBoilerTemp) * (boilerTemp - actualReadings[chan_shell_temp]);
+    float energy = 25.2 * (boilerTemp - lastBoilerTemp) * (1 + (boilerTemp - actualReadings[chan_shell_temp]) / ISO_VALUE);
+    Console.println(energy);
+    if (energy >= 0.0) {
+      actualReadings[chan_boiler_energy_in] += energy;
+    } else {
+      actualReadings[chan_boiler_energy_out] += energy;
+    }
   }
 
   actualReadings[chan_heater_power_cum] += actualReadings[chan_heater_power]/240000;
@@ -52,16 +58,14 @@ void updateData() {
     dataString += "\nheater_power_cum,";
     dataString += channel_data;
     
-    dtostrf(actualReadings[chan_boiler_energy_cum], 5, 2, channel_data);
-    dataString += "\nboiler_energy_cum,";
+    dtostrf(actualReadings[chan_boiler_energy_in], 5, 2, channel_data);
+    dataString += "\nboiler_energy_in,";
     dataString += channel_data;
     
-    //if (lastBoilerTemp != 0.0) {
-      //dtostrf(energy, 3, 1, channel_data);
-      //dataString += "\nboiler_energy,";
-      //dataString += channel_data;
-    //}
-    
+    dtostrf(actualReadings[chan_boiler_energy_out], 5, 2, channel_data);
+    dataString += "\nboiler_energy_out,";
+    dataString += channel_data;
+     
     if (sendLastDayResult) {
       dtostrf(lowest_inlet, 4, 2, channel_data);
       dataString += "\nwater_temp,";

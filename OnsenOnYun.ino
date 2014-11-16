@@ -13,6 +13,7 @@
 #define NMBR_OF_MEASUREMENTS    1480
 #define MAINS_VOLTAGE           230
 #define MIN_POWER_LEVEL         50.0
+#define ISO_VALUE               10
 
 // Xively connection parameters
 #define APIKEY        "uIP9aTS6lbSZZ9PYpStFrBUgsw0zqVIudkSBG3VWOihkP62R"//Xively API key
@@ -33,7 +34,7 @@ int day;
 int lastDay = -1;
 bool sendLastDayResult = false;
 
-float actualReadings[9];
+float actualReadings[10];
 
 #define chan_boiler_temp_bottom 0
 #define chan_outlet_temp        1
@@ -43,7 +44,8 @@ float actualReadings[9];
 #define chan_boiler_temp_delta  5
 #define chan_heater_power       6
 #define chan_heater_power_cum   7
-#define chan_boiler_energy_cum  8
+#define chan_boiler_energy_in   8
+#define chan_boiler_energy_out  9
 
 unsigned long lastSample = 0;      // when your last send a sample
 
@@ -94,7 +96,8 @@ void loop()
         
     if(lastDay != day) {
       actualReadings[chan_heater_power_cum] = 0; // reset cumulative power on a new day
-      actualReadings[chan_boiler_energy_cum] = 0;
+      actualReadings[chan_boiler_energy_in] = 0;
+      actualReadings[chan_boiler_energy_out] = 0;
       sendLastDayResult = true;
     }
     
